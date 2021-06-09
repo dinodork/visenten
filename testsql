@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cat bad.sql | xargs -I {} ./check_for_error {}
