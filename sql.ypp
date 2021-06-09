@@ -1,0 +1,237 @@
+
+%{
+#include "ast.h"
+#include <iostream>
+#include <string>
+#include <map>
+
+using namespace std;
+
+//-- Lexer prototype required by bison, aka getNextToken()
+int yylex();
+int yyerror(const char *p) { cerr << "Error!" << endl; return 1; }
+
+%}
+
+%union {
+  Expression* expr;
+  Order* order;
+  Limit* limit;
+  QuerySpecification* qs;
+  QueryExpressionBody* qeb;
+  QueryExpression* qe;
+  QueryTerm* qt;
+  TableReferenceList* trl;
+  TableReference* tr;
+  TableFactor* tf;
+  TableName* tn;
+  DerivedTable* dt;
+  JoinCondition* jc;
+  int val;
+  char sym;
+  string* word;
+};
+
+%token <val> NUM
+%token <sym> OPA OPM STOP SELECT UNION FROM ',' JOIN '(' ')' AS ON USING CROSS
+INNER LEFT RIGHT OUTER INTO ORDER BY LIMIT WITH
+%token <word> ALPHANUM
+%type <word> alias_clause opt_alias_clause
+%type <val> res
+%type <qe> query_expression select_statement
+           query_expression_parens subquery query_expression_with_trailing_into
+%type <qeb> query_expression_body
+%type <qt> query_term query_term_parens
+%type <qs> query_primary
+%type <tr> table_reference
+%type <tf> table_factor table_name table_name_parens joined_table
+%type <trl> table_reference_list table_reference_list_parens from_clause
+            opt_from_clause
+%type <jc> join_specification
+%type <expr> expr term
+%type <order> order_clause opt_order_clause
+%type <limit> limit_clause opt_limit_clause
+
+%left SUBQUERY_AS_EXPR
+%left '(' ')'
+
+%left EMPTY_FROM_CLAUSE
+%right INTO
+
+%precedence EMPTY_JOIN_CONDITION
+%precedence JOIN ON USING RIGHT LEFT CROSS INNER
+
+%%
+
+run: res run | res    /* forces bison to process many stmts */
+
+res: select_statement STOP         { $1->print(); cout << endl; }
+
+query_expression:
+    query_expression_body opt_order_clause opt_limit_clause {
+      $$= new QueryExpression($1, $2, $3);
+    }
+  | with_clause query_expression_body opt_order_clause opt_limit_clause {
+    $$= new QueryExpression($2, $3, $4);
+    }
+
+// opt_with_clause:
+// | with_clause
+
+with_clause:
+    WITH ALPHANUM AS query_expression_parens
+
+query_expression_body:
+    query_term                       { $$ = new QueryExpressionBodyTerm($1); }
+  // | with_clause query_term           { $$ = new QueryExpressionBodyTerm($2); }
+  // | with_clause query_term_parens    { $$ = new QueryExpressionBodyTerm($2); }
+  | query_expression_body   UNION query_term        { $$= new Union($1, $3); }
+  | query_expression_parens UNION query_term        { $$= new Union($1, $3); }
+  | query_expression_body   UNION query_term_parens { $$= new Union($1, $3); }
+  | query_expression_parens UNION query_term_parens { $$= new Union($1, $3); }
+
+query_expression_parens:
+    '(' query_expression_parens ')' { $$ = $2; }
+  | '(' query_expression ')'        { $$ = $2; }
+
+query_term_parens:
+    '(' query_term_parens ')' { $$ = $2; }
+  | '(' query_term ')'        { $$ = $2; }
+
+query_term:
+    query_primary
+    {
+      // Bison doesn't always get polymorphism, we need to give it a friendly
+      // nudge sometimes.
+      $$ = $1;
+    }
+
+query_primary:
+    SELECT expr opt_from_clause
+    { $$ = new QuerySpecification($2, $3); }
+  | SELECT expr into opt_from_clause
+    { $$ = new QuerySpecification($2, $4); }
+
+select_statement:
+    query_expression
+  | query_expression_with_trailing_into
+  | query_expression_parens
+
+query_expression_with_trailing_into:
+    '(' query_expression_with_trailing_into ')' { $$ = $2; }
+| query_expression into
+
+into:
+    INTO ALPHANUM
+
+opt_from_clause:
+    /*  empty */ %prec EMPTY_FROM_CLAUSE { $$ = NULL; }
+  | from_clause
+
+from_clause:
+    FROM table_reference_list { $$ = $2; }
+
+table_reference_list:
+    table_reference { $$ = new TableReferenceList($1); }
+  | table_reference_list ',' table_reference { $1->add($3); }
+
+table_reference:
+    table_factor { $$= $1; }
+  | joined_table { $$= $1; }
+
+joined_table:
+    table_reference join table_reference %prec EMPTY_JOIN_CONDITION
+    { $$ = new JoinedTable($1, $3); }
+  | table_reference join table_reference join_specification
+    { $$ = new JoinedTable($1, $3, $4); }
+
+join_specification:
+    ON NUM { $$= new On(new Num($2)); }
+  | USING '(' NUM ')' { $$= NULL; }
+
+join:
+    CROSS JOIN
+  | INNER JOIN
+  | outer_join_type opt_outer JOIN
+  | JOIN
+
+outer_join_type:
+    LEFT
+  | RIGHT
+
+opt_outer:
+    // empty
+  | OUTER
+
+table_factor:
+    table_name opt_alias_clause
+  | table_name_parens
+  | query_expression_parens opt_alias_clause
+    {
+      $$ = new DerivedTable(*$1, $2);
+    }
+  | table_reference_list_parens
+    {
+      // Bison doesn't always get polymorphism, we need to give it a friendly
+      // nudge sometimes.
+      $$ = $1;
+    }
+  | '(' joined_table ')' { $$ = $2; }
+
+table_reference_list_parens:
+    '(' table_reference_list_parens ')' { $$ = $2; }
+  | '(' table_reference_list ',' table_reference ')'
+    {
+      $2->add($4); $$ = $2;
+    }
+
+opt_alias_clause:
+    /*  empty */ { $$ = NULL; }
+  | opt_as alias_clause { $$ = $2; }
+
+opt_as:
+    /*  empty */
+  | AS
+
+alias_clause:
+    ALPHANUM
+
+table_name_parens:
+    '(' table_name_parens ')' { $$ = $2; }
+  | '(' table_name opt_alias_clause ')' { $$ = $2; }
+
+table_name:
+    ALPHANUM { $$ = new TableName(*$1); }
+
+expr:
+    expr '=' term { $$ = new Binop($1, $3); }
+  | term
+
+term:
+    NUM { $$ = new Num($1); }
+  | '(' expr ')' { $$ = $2; }
+  | subquery { $$ = new SubqueryExpression($1); }
+
+subquery:
+   query_expression_parens %prec SUBQUERY_AS_EXPR
+
+opt_order_clause:
+    /* empty */ { $$= NULL; }
+  | order_clause
+
+order_clause:
+    ORDER BY ALPHANUM { $$= new Order; }
+
+opt_limit_clause:
+/* empty */ { $$= NULL; }
+  | limit_clause
+
+limit_clause:
+    LIMIT NUM { $$= new Limit; }
+
+%%
+
+int main()
+{
+  return yyparse();
+}
