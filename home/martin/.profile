@@ -25,3 +25,9 @@ fi
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
+
+# Copied from /etc/profile.d/10-retropie.sh
+# Changed "pi" to "martin"
+if [ "`tty`" = "/dev/tty1" ] && [ -z "$DISPLAY" ] && [ "$USER" = "martin" ]; then
+    bash "/opt/retropie/configs/all/autostart.sh"
+fi
