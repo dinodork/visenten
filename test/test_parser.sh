@@ -6,12 +6,14 @@ good_sql=good.sql
 # Test the bad SQL
 while read line
 do
-    echo "${line}" | ../build/src/visenten 2>&1 | grep -v "^Error!$"
-    if [ $? == 0 ]
-    then
-        echo "This passed and it shouldn't: $line"
-        exit 1
-    fi
+  echo "${line}" | ../build/src/visenten 2>&1 > error.log
+  status="$?"
+  echo "status $status"
+  if [ "$status" == 0 ]
+  then
+    echo "This passed and it shouldn't: $line"
+    exit 1
+  fi
 done < ${bad_sql}
 
 # Test the good SQL

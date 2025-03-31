@@ -7,7 +7,13 @@ using namespace std;
 
 %option noyywrap
 
+%s COMMENT
+
 %%
+
+--              BEGIN(COMMENT);
+<COMMENT>[^\n]*
+<COMMENT>\n     BEGIN(INITIAL);
 
 [0-9]+   { yylval.val = atoi(yytext); return NUM; }
 [a-z][a-z0-9]* { yylval.word = new string(yytext); return ALPHANUM; }
@@ -18,9 +24,9 @@ using namespace std;
 ","      { return ','; }
 ";"      { return STOP; }
 "="      { return '='; }
-<<EOF>>  { return 0; }
+<<EOF>>  { return YYEOF; }
 [ \t\n]+ { }
-.        { cerr << "Unrecognized token!" << endl; exit(1); }
+.        { return *yytext; }
 AS       { return AS; }
 SELECT   { return SELECT; }
 FROM     { return FROM; }
