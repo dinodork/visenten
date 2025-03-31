@@ -1,6 +1,6 @@
 
 %{
-#include "ast.h"
+#include "ast.hpp"
 #include <iostream>
 #include <string>
 #include <map>

@@ -1,5 +1,5 @@
 %{
-#include "ast.h"
+#include "ast.hpp"
 #include "sql.tab.hpp"
 #include <iostream>
 using namespace std;
