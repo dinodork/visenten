@@ -9,9 +9,11 @@ using namespace std;
 
 //-- Lexer prototype required by bison, aka getNextToken()
 int yylex();
-int yyerror(const char *p) { cerr << "Error!" << endl; return 1; }
+int yyerror (const char *p) { cerr << p; return 1; }
 
 %}
+
+%define parse.error detailed
 
 %union {
   Expression* expr;
@@ -61,11 +63,15 @@ INNER LEFT RIGHT OUTER INTO ORDER BY LIMIT WITH
 %precedence EMPTY_JOIN_CONDITION
 %precedence JOIN ON USING RIGHT LEFT CROSS INNER
 
+%expect 0
+
 %%
 
-run: res run | res    /* forces bison to process many stmts */
+run: res
 
-res: select_statement STOP         { $1->print(); cout << endl; }
+res: YYEOF                        {}
+  | select_statement STOP         { $1->print(); cout << endl; }
+  | select_statement YYEOF        { $1->print(); cout << endl; }
 
 query_expression:
     query_expression_body opt_order_clause opt_limit_clause {
