@@ -19,7 +19,7 @@ while read line
 do
   if [ "${line}" != "" ]
   then
-    echo "${line}" | ../build/src/visenten 2>&1 | grep -v "^Error!$"
+    echo "${line}" | ../build/src/visenten > /dev/null
     if [ $? != 0 ]
     then
       echo "This didn't pass and it should: $line"
@@ -27,3 +27,8 @@ do
     fi
   fi
 done < ${good_sql}
+
+if [ "$?" == "0" ]
+then
+  echo All tests passed.
+fi
