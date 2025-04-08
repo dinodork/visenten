@@ -8,36 +8,20 @@
 using namespace std;
 
 //-- Lexer prototype required by bison, aka getNextToken()
-int yylex();
+int yylex(/*yy::parser::value_type*/);
 int yyerror (const char *p) { cerr << p; return 1; }
 
 %}
 
 %define parse.error detailed
+%define api.value.type variant
+%language "C++"
+%define api.token.constructor
 
-%union {
-  Expression* expr;
-  Order* order;
-  Limit* limit;
-  QuerySpecification* qs;
-  QueryExpressionBody* qeb;
-  QueryExpression* qe;
-  QueryTerm* qt;
-  TableReferenceList* trl;
-  TableReference* tr;
-  TableFactor* tf;
-  TableName* tn;
-  DerivedTable* dt;
-  JoinCondition* jc;
-  int val;
-  char sym;
-  string* word;
-};
-
-%token <sym> OPA OPM STOP
+%token <int> OPA OPM STOP
 
 /* SQL Keywords */
-%token <sym> DEALLOCATE PARAMETERS INTERSECT TEMPORARY TIMESTAMP
+%token <int> DEALLOCATE PARAMETERS INTERSECT TEMPORARY TIMESTAMP
 DISTINCT NVARCHAR RESTRICT TRUNCATE ANALYZE BETWEEN
 CASCADE COLUMNS CONTROL DEFAULT EXECUTE EXPLAIN
 INTEGER NATURAL PREPARE PRIMARY SCHEMAS CHARACTER_VARYING REAL DECIMAL SMALLINT BIGINT
@@ -58,24 +42,24 @@ TRANSACTION BEGIN_SYM COMMIT ROLLBACK
 NOWAIT SKIP LOCKED SHARE
 RANGE ROWS GROUPS UNBOUNDED FOLLOWING PRECEDING CURRENT_ROW
 
-%token <val> NUM
-%token <sym> ',' '(' ')'
-%token <word> ALPHANUM
-%type <word> alias_clause opt_alias_clause
-%type <val> res
-%type <qe> query_expression select_statement
+%token <int> NUM
+%token <char> ',' '(' ')'
+%token <string *> ALPHANUM
+%type <string *> alias_clause opt_alias_clause
+%type <int> res
+%type <QueryExpression *> query_expression select_statement
            query_expression_parens subquery query_expression_with_trailing_into
-%type <qeb> query_expression_body
-%type <qt> query_term query_term_parens
-%type <qs> query_primary
-%type <tr> table_reference
-%type <tf> table_factor table_name table_name_parens joined_table
-%type <trl> table_reference_list table_reference_list_parens from_clause
+%type <QueryExpressionBody *> query_expression_body
+%type <QueryTerm *> query_term query_term_parens
+%type <QuerySpecification *> query_primary
+%type <TableReference *> table_reference
+%type <TableFactor *> table_factor table_name table_name_parens joined_table
+%type <TableReferenceList *> table_reference_list table_reference_list_parens from_clause
             opt_from_clause
-%type <jc> join_specification
-%type <expr> expr term
-%type <order> order_clause opt_order_clause
-%type <limit> limit_clause opt_limit_clause
+%type <JoinCondition *> join_specification
+%type <Expression *> expr term
+%type <Order *> order_clause opt_order_clause
+%type <Limit *> limit_clause opt_limit_clause
 
 %left SUBQUERY_AS_EXPR
 %left '(' ')'
@@ -265,5 +249,6 @@ limit_clause:
 
 int main()
 {
-  return yyparse();
+  yy::parser parse;
+  return parse ();
 }
