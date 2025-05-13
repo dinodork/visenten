@@ -30,4 +30,6 @@ endif()
 include(FindBison)
 include(FindFlex)
 
+SET(CMAKE_CXX_FLAGS "-std=c++17")
+
 add_subdirectory(src)
