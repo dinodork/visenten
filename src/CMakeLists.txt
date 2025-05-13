@@ -1,4 +1,4 @@
-bison_target(SqlParser sql.ypp sql_tab.cpp DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/sql.tab.hpp)
+bison_target(SqlParser sql.ypp sql_tab.cpp DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/sql_tab.hpp)
 flex_target(SqlLexer sql.l sql_lexer.yy.cpp DEFINES_FILE sql_lexer.yy.hpp)
 add_flex_bison_dependency(SqlLexer SqlParser)
 

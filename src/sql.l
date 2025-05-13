@@ -1,6 +1,6 @@
 %{
 #include "ast.hpp"
-#include "sql.tab.hpp"
+#include "sql_tab.hpp"
 #include <iostream>
 using namespace std;
 %}
