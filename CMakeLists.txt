@@ -27,9 +27,9 @@ if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
     endif()
 endif()
 
-include(FindBison)
-include(FindFlex)
+include(FindBISON)
+include(FindFLEX)
 
-SET(CMAKE_CXX_FLAGS "-std=c++17")
+SET(CMAKE_CXX_FLAGS "-std=c++17 -Wextra -Werror")
 
 add_subdirectory(src)
