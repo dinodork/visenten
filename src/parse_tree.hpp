@@ -26,6 +26,7 @@ enum NodeType {
   QueryExpression,
   QueryExpressionBodyTerm,
   QuerySpecification,
+  SelectList,
   SubqueryExpression,
   TableDefinition,
   TableElementList,
@@ -36,6 +37,8 @@ enum NodeType {
 
 struct Node {
 
+  using ChildList = std::vector<std::unique_ptr<Node>>;
+
   Node(NodeType t) : tag(t) {}
 
   template <typename T, typename = std::enable_if_t<!std::is_same_v<T, Node *>>>
@@ -43,23 +46,27 @@ struct Node {
 
   template <typename... Args, typename = std::enable_if_t<std::conjunction_v<
                                   std::is_same<Args, Node *>...>>>
-  Node(NodeType t, Args... args) : tag(t) {
-    (push_back_if_not_null(std::unique_ptr<Node>(args)), ...);
+  Node(NodeType t, Args... args) : tag(t), content(ChildList{}) {
+    (push_back_if_not_null(args), ...);
   }
 
-  void push_back(Node *node) {
-    children.push_back(std::unique_ptr<Node>(node));
+  void push_back(Node &node) {
+    children().push_back(std::unique_ptr<Node>(&node));
   }
 
-  void push_back_if_not_null(std::unique_ptr<Node> &&node) {
+  void push_back_if_not_null(Node *node) {
     if (node == nullptr)
       return;
-    children.push_back(std::move(node));
+    push_back(*node);
   }
 
+  bool is_leaf() const { return !std::holds_alternative<ChildList>(content); }
+
+  ChildList &children() { return *std::get_if<ChildList>(&content); }
+
   NodeType tag;
-  std::vector<std::unique_ptr<Node>> children;
-  std::variant<int, std::string> content;
+
+  std::variant<ChildList, int, std::string> content;
 };
 
 template <typename... Ts> Node *make_node(NodeType type, Ts &&...ts) {
