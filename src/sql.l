@@ -25,19 +25,20 @@ using std::string;
 
 AS       { return AS; }
 BY       { return BY; }
+CREATE   { return CREATE; }
 FROM     { return FROM; }
+INSERT   { return INSERT; }
 INTO     { return INTO; }
 JOIN     { return JOIN; }
 LIMIT    { return LIMIT; }
 ON       { return ON; }
 ORDER    { return ORDER; }
 SELECT   { return SELECT; }
+TABLE    { return TABLE; }
 UNION    { return UNION; }
 USING    { return USING; }
+VALUES   { return VALUES; }
 WITH     { return WITH; }
-CREATE   { return CREATE; }
-TABLE    { return TABLE; }
-
 
 [0-9]+   { yylval.val = atoi(yytext); return NUM; }
 

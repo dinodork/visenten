@@ -54,13 +54,14 @@ RANGE ROWS GROUPS UNBOUNDED FOLLOWING PRECEDING CURRENT_ROW
 %type <word>  identifier
 %type <val> statement
 %type <node>  table_definition table_element column_definition query_expression
-  select_statement query_expression_parens subquery
+  select_statement data_change_statement insert_statement query_expression_parens subquery
   query_expression_with_trailing_into table_element_list query_expression_body
   query_term query_term_parens query_primary select_list select_sublist table_reference table_factor
   table_name table_name_parens joined_table table_reference_list
   table_reference_list_parens from_clause opt_from_clause join_specification
   expr term order_clause opt_order_clause limit_clause opt_limit_clause
-  alias_clause opt_alias_clause column_name data_type
+  alias_clause opt_alias_clause column_name data_type row_value_expr row_value_expr_list expr_list
+  row_value_constructor
 
 %left SUBQUERY_AS_EXPR
 %left '(' ')'
@@ -83,7 +84,7 @@ run:
 statement:
     table_definition              { print($1); cout << endl; }
   | select_statement              { print($1); cout << endl; }
-
+  | data_change_statement         { print($1); cout << endl; }
 
 query_expression:
     query_expression_body opt_order_clause opt_limit_clause {
@@ -277,6 +278,28 @@ data_type:
 
 identifier:
     ALPHANUM { $$ = $1; }
+
+data_change_statement:
+    insert_statement
+
+insert_statement:
+    INSERT INTO table_name VALUES row_value_expr_list { $$ = make_node(InsertStatement, $3, $5); }
+
+row_value_expr_list:
+    row_value_expr { $$ = make_node(RowValueExpr, $1); }
+  | row_value_expr_list ',' row_value_expr { $1->push_back(*$3); }
+
+row_value_expr:
+    row_value_constructor
+
+row_value_constructor:
+    '(' expr_list ')' { $$ = $2; }
+
+expr_list:
+    expr { $$ = make_node(ExprList, $1); };
+  | expr_list ',' expr { $1->push_back(*$3); }
+
+
 
 %%
 
