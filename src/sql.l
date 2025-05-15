@@ -5,7 +5,7 @@
 using namespace std;
 %}
 
-%option noyywrap
+%option noyywrap case-insensitive
 
 %s COMMENT
 
