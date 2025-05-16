@@ -47,7 +47,7 @@ WITH     { return WITH; }
 "("      { return '('; }
 ")"      { return ')'; }
 ","      { return ','; }
-";"      { return STOP; }
+";"      { return ';'; }
 "="      { return '='; }
 <<EOF>>  { return YYEOF; }
 [ \t\n]+ { }

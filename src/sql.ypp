@@ -24,8 +24,6 @@ int yyerror (const char *p) { cerr << p << endl; return 1; }
   std::string* word;
 };
 
-%token <sym> OPA OPM STOP
-
 /* SQL Keywords */
 %token <sym> DEALLOCATE PARAMETERS INTERSECT TEMPORARY TIMESTAMP
 DISTINCT NVARCHAR RESTRICT TRUNCATE ANALYZE BETWEEN
@@ -49,9 +47,9 @@ NOWAIT SKIP LOCKED SHARE
 RANGE ROWS GROUPS UNBOUNDED FOLLOWING PRECEDING CURRENT_ROW
 
 %token <val> NUM
-%token <sym> ',' '(' ')'
+%token <sym> ',' '(' ')' ';' OPA OPM STOP
 %token <word> ALPHANUM
-%type <word>  identifier
+%type <word> identifier
 %type <val> statement
 %type <node>  table_definition table_element column_definition query_expression
   select_statement data_change_statement insert_statement query_expression_parens subquery
@@ -78,7 +76,7 @@ RANGE ROWS GROUPS UNBOUNDED FOLLOWING PRECEDING CURRENT_ROW
 
 run:
     statement YYEOF
-  | statement STOP
+  | statement ';'
   | YYEOF
 
 statement:
