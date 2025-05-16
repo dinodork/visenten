@@ -2,13 +2,8 @@
 
 namespace parse_tree {
 
-void print(Node *node) {
-  Stringifier s;
-  node->accept(s);
-  cout << "Stringified:\n"
-       << "'" << s.result_string() << "'";
-}
+void print(Node *) {}
 
-void print(Node *node, std::ostream &stream) { stream << "pitt!" << node; }
+void print(Node *, std::ostream &) {}
 
 } // namespace parse_tree

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <variant>
 #include <vector>
 
 using std::cout;
@@ -16,6 +17,7 @@ enum NodeType {
   ColumnName,
   DataType,
   DerivedTable,
+  FromClause,
   JoinedTable,
   Limit,
   Num,
@@ -42,14 +44,18 @@ struct Node {
   template <typename... Args, typename = std::enable_if_t<std::conjunction_v<
                                   std::is_same<Args, Node *>...>>>
   Node(NodeType t, Args... args) : tag(t) {
-    (children.push_back(std::unique_ptr<Node>(args)), ...);
+    (push_back_if_not_null(std::unique_ptr<Node>(args)), ...);
   }
 
   void push_back(Node *node) {
     children.push_back(std::unique_ptr<Node>(node));
   }
 
-  void print() {}
+  void push_back_if_not_null(std::unique_ptr<Node> &&node) {
+    if (node == nullptr)
+      return;
+    children.push_back(std::move(node));
+  }
 
   NodeType tag;
   std::vector<std::unique_ptr<Node>> children;
@@ -59,5 +65,9 @@ struct Node {
 template <typename... Ts> Node *make_node(NodeType type, Ts &&...ts) {
   return new Node(type, std::forward<Ts>(ts)...);
 }
+
+void print(Node *);
+
+void print(Node *, std::ostream &);
 
 } // namespace parse_tree

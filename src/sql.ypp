@@ -81,8 +81,8 @@ run:
   | YYEOF
 
 statement:
-    table_definition              { $1->print();  cout << endl; }
-  | select_statement              { $1->print(); cout << endl; }
+    table_definition              { print($1); cout << endl; }
+  | select_statement              { print($1); cout << endl; }
 
 
 query_expression:
@@ -121,11 +121,6 @@ query_term_parens:
 
 query_term:
     query_primary
-    {
-      // Bison doesn't always get polymorphism, we need to give it a friendly
-      // nudge sometimes.
-      $$ = $1;
-    }
 
 query_primary:
     SELECT expr opt_from_clause
@@ -150,7 +145,7 @@ opt_from_clause:
   | from_clause
 
 from_clause:
-    FROM table_reference_list { $$ = $2; }
+    FROM table_reference_list { $$ = make_node(FromClause, $2); }
 
 table_reference_list:
     table_reference { $$ = make_node(TableReferenceList, $1); }
