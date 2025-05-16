@@ -74,10 +74,15 @@ RANGE ROWS GROUPS UNBOUNDED FOLLOWING PRECEDING CURRENT_ROW
 
 %%
 
-run:
-    statement YYEOF
-  | statement ';'
+
+start:
+    statement_list YYEOF
+  | statement_list ';'
   | YYEOF
+
+statement_list:
+    statement
+  | statement_list ';' statement
 
 statement:
     table_definition              { print($1); cout << endl; }
