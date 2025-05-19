@@ -26,6 +26,7 @@ using std::string;
 AS       { return AS; }
 BY       { return BY; }
 CREATE   { return CREATE; }
+DROP     { return DROP; }
 FROM     { return FROM; }
 INSERT   { return INSERT; }
 INTO     { return INTO; }

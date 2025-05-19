@@ -119,3 +119,5 @@ SELECT '!@#$%^&*()';
 
 SELECT *;
 SELECT * FROM table1;
+
+DROP TABLE t1;

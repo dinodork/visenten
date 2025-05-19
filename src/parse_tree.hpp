@@ -17,6 +17,7 @@ enum NodeType {
   ColumnName,
   DataType,
   DerivedTable,
+  DropTable,
   ExprList,
   FromClause,
   InsertStatement,
