@@ -42,6 +42,7 @@ enum NodeType {
   TableName,
   TableReferenceList,
   Union,
+  WhereClause,
 };
 
 struct Node {

@@ -41,6 +41,7 @@ UNION    { return UNION; }
 USING    { return USING; }
 VALUES   { return VALUES; }
 VARCHAR  { return VARCHAR; }
+WHERE    { return WHERE; }
 WITH     { return WITH; }
 
 -?[0-9]+   { yylval.val = atoi(yytext); return NUM; }
