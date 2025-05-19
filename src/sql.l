@@ -52,5 +52,5 @@ WITH     { return WITH; }
 <<EOF>>  { return YYEOF; }
 [ \t\n]+ { }
 
-[a-zA-Z][a-z0-9]* { yylval.word = new string(yytext); return ALPHANUM; }
+[a-zA-Z][a-z0-9]* { yylval.word = new string(yytext); return IDENT; }
 %%
