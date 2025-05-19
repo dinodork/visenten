@@ -1,8 +1,15 @@
 #!/bin/bash
 
-bad_sql=bad.sql
-good_sql=good.sql
-executable=build/src/visenten
+top_dir=`git rev-parse --show-toplevel`
+bad_sql="$top_dir/test/bad.sql"
+good_sql="$top_dir/test/good.sql"
+
+if [ "$1" == "" ]
+then
+  executable=$top_dir/build/src/visenten
+else
+  executable="$1"
+fi
 
 # Test the bad SQL
 while read line
