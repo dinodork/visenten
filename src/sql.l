@@ -41,18 +41,20 @@ USING    { return USING; }
 VALUES   { return VALUES; }
 WITH     { return WITH; }
 
-[0-9]+   { yylval.val = atoi(yytext); return NUM; }
+-?[0-9]+   { yylval.val = atoi(yytext); return NUM; }
 '[^']*' { yylval.word = new std::string(yytext); return STRING; }
 
-[\+|\-]  { yylval.sym = yytext[0]; return OPA; }
+"-"      { return '-'; }
+"+"      { return '+'; }
 "("      { return '('; }
 ")"      { return ')'; }
 ","      { return ','; }
 ";"      { return ';'; }
 "="      { return '='; }
 "*"      { return '*'; }
+"."      { return '.'; }
 <<EOF>>  { return YYEOF; }
 [ \t\n]+ { }
 
-[a-zA-Z][a-z0-9]* { yylval.word = new string(yytext); return IDENT; }
+[a-zA-Z_][a-z0-9_]* { yylval.word = new string(yytext); return IDENT; }
 %%
