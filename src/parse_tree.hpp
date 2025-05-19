@@ -30,6 +30,7 @@ enum NodeType {
   QuerySpecification,
   RowValueExpr,
   SelectList,
+  String,
   SubqueryExpression,
   TableDefinition,
   TableElementList,

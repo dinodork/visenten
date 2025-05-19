@@ -41,6 +41,7 @@ VALUES   { return VALUES; }
 WITH     { return WITH; }
 
 [0-9]+   { yylval.val = atoi(yytext); return NUM; }
+'[^']*' { yylval.word = new std::string(yytext); return STRING; }
 
 [\+|\-]  { yylval.sym = yytext[0]; return OPA; }
 [\*|/]   { yylval.sym = yytext[0]; return OPM; }

@@ -2,3 +2,4 @@ SELECT 1 FROM (( SELECT 1 ) al);
 SELECT 1 alias;
 SELECT 1 FROM ((t1) a);
 SELECT 1 FROM (t1) a;
+SELECT "";

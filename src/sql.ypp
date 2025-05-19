@@ -46,7 +46,7 @@ TRANSACTION BEGIN_SYM COMMIT ROLLBACK
 NOWAIT SKIP LOCKED SHARE
 RANGE ROWS GROUPS UNBOUNDED FOLLOWING PRECEDING CURRENT_ROW
 
-%token <val> NUM
+%token <val> NUM STRING
 %token <sym> ',' '(' ')' ';' OPA OPM STOP
 %token <word> IDENT
 %type <word> identifier
@@ -140,7 +140,7 @@ select_sublist:
     {
       $$ = make_node(SelectList, $1);
     }
-  | select_sublist ',' expr
+    | select_sublist ',' expr
     {
       $1->push_back(*$3);
     }
@@ -239,6 +239,7 @@ term:
 
 literal:
     NUM { $$ = make_node(Num, $1); }
+  | STRING { $$ = make_node(Num, $1); }
 
 subquery:
     query_expression_parens %prec SUBQUERY_AS_EXPR
