@@ -36,9 +36,11 @@ ON       { return ON; }
 ORDER    { return ORDER; }
 SELECT   { return SELECT; }
 TABLE    { return TABLE; }
+TABLES   { return TABLES; }
 UNION    { return UNION; }
 USING    { return USING; }
 VALUES   { return VALUES; }
+VARCHAR  { return VARCHAR; }
 WITH     { return WITH; }
 
 -?[0-9]+   { yylval.val = atoi(yytext); return NUM; }
