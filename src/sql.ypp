@@ -47,7 +47,7 @@ NOWAIT SKIP LOCKED SHARE
 RANGE ROWS GROUPS UNBOUNDED FOLLOWING PRECEDING CURRENT_ROW
 
 %token <val> NUM STRING
-%token <sym> ',' '(' ')' ';' OPA OPM STOP
+%token <sym> ',' '(' ')' ';' '*' OPA STOP
 %token <word> IDENT
 %type <word> identifier
 %type <val> statement
@@ -133,14 +133,15 @@ query_primary:
     { $$ = make_node(QuerySpecification, $2, $4); }
 
 select_list:
-    select_sublist
+    '*' { make_node(Star); }
+  | select_sublist
 
 select_sublist:
     expr
     {
       $$ = make_node(SelectList, $1);
     }
-    | select_sublist ',' expr
+  | select_sublist ',' expr
     {
       $1->push_back(*$3);
     }

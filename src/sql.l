@@ -44,12 +44,12 @@ WITH     { return WITH; }
 '[^']*' { yylval.word = new std::string(yytext); return STRING; }
 
 [\+|\-]  { yylval.sym = yytext[0]; return OPA; }
-[\*|/]   { yylval.sym = yytext[0]; return OPM; }
 "("      { return '('; }
 ")"      { return ')'; }
 ","      { return ','; }
 ";"      { return ';'; }
 "="      { return '='; }
+"*"      { return '*'; }
 <<EOF>>  { return YYEOF; }
 [ \t\n]+ { }
 

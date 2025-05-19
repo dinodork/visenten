@@ -116,3 +116,6 @@ SELECT '';
 SELECT 'abc';
 SELECT '123';
 SELECT '!@#$%^&*()';
+
+SELECT *;
+SELECT * FROM table1;
